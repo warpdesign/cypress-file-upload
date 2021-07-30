@@ -22,8 +22,19 @@ function getEventsBySubjectType(subjectType) {
 }
 
 export default function attachFileToElement(subject, { files, subjectType, force, window }) {
-  const dataTransfer = new window.DataTransfer();
+  let dataTransfer = new window.DataTransfer();
   files.forEach(f => dataTransfer.items.add(f));
+
+  // temporary fix for https://github.com/abramenal/cypress-file-upload/issues/320
+  if (isBrowserFirefox) {
+    dataTransfer = {
+      dropEffect: 'none',
+      effectAllowed: 'none',
+      files: dataTransfer.files,
+      items: dataTransfer.items,
+      types: ['Files'],
+    };
+  }
 
   if (subjectType === SUBJECT_TYPE.INPUT) {
     const inputElement = subject[0];
